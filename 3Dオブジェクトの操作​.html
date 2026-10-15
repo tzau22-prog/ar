@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+</head>
+<body>
+    <a-scene cursor="rayOrigin: mouse" raycaster="objects: .clickable">
+       
+        <a-sky color="#050515"></a-sky>
+        
+     
+        <a-plane position="0 -0.5 -4" rotation="-90 0 0" width="12" height="12" color="#1a1a2e"></a-plane>
+        <a-grid position="0 -0.49 -4" rotation="-90 0 0" width="12" height="12" color="#4e54c8"></a-grid>
+
+    
+        <a-plane position="0 2.5 -4.01" width="3" height="0.8" color="#111122" opacity="0.85"></a-plane>
+        <a-text 
+            id="hpText" 
+            value="TARGET HP: 30\nATK: 3" 
+            position="0 2.5 -4" 
+            color="#00ffcc" 
+            align="center" 
+            scale="1.2 1.2 1.2">
+        </a-text>
+
+       
+        <a-box 
+            id="box" 
+            class="clickable" 
+            position="0 0.8 -4" 
+            color="#4e54c8"
+            animation="property: rotation; from: 0 0 0; to: 0 360 0; dur: 500; startEvents: spin">
+        </a-box>
+
+       
+        <a-box 
+            id="itemBox" 
+            class="clickable" 
+            position="-2.5 0.3 -3.5" 
+            scale="0.6 0.6 0.6"
+            color="#ffdd59"
+            animation="property: rotation; to: 0 360 0; loop: true; easing: linear; dur: 4000">
+        </a-box>
+        <a-text value="ITEM\n+2 ATK" position="-2.5 1 -3.5" align="center" scale="0.8 0.8 0.8" color="#ffdd59"></a-text>
+
+        <a-sphere 
+            id="bossSphere" 
+            class="clickable" 
+            position="0 1.5 -5" 
+            radius="1.6" 
+            color="#ff4757" 
+            visible="false"
+            animation="property: rotation; from: 0 0 0; to: 360 360 0; dur: 8000; loop: true; easing: linear">
+        </a-sphere>
+    </a-scene>
+
+    <script>
+        let hp = 30;
+        let atk = 3;
+        let isBossPhase = false;
+
+        const box = document.getElementById("box");
+        const hpText = document.getElementById("hpText");
+        const itemBox = document.getElementById("itemBox");
+        const bossSphere = document.getElementById("bossSphere");
+
+       
+        function playHitSound() {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.frequency.setValueAtTime(400, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.15);
+            gain.gain.setValueAtTime(0.3, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.15);
+        }
+
+      
+        function damage() {
+            playHitSound();
+
+            if (!isBossPhase) {
+                
+                box.emit("spin");
+
+             
+                hp = hp - atk;
+
+                if (hp < 0) hp = 0;
+
+             
+                hpText.setAttribute("value", "TARGET HP: " + hp + "\nATK: " + atk);
+
+                
+                if (hp <= 12 && hp > 0) {
+                    box.setAttribute("color", "#ff6b6b");
+                }
+
+                
+                if (hp <= 0) {
+                    box.setAttribute("visible", false);
+                    spawnBoss();
+                }
+            } else {
+               
+                hp = hp - atk;
+                if (hp < 0) hp = 0;
+                hpText.setAttribute("value", "BOSS HP: " + hp + "\nATK: " + atk);
+
+                if (hp <= 0) {
+                    bossSphere.setAttribute("visible", false);
+                    hpText.setAttribute("value", "STAGE CLEAR!\nYOU WIN!");
+                    hpText.setAttribute("color", "#ff4757");
+                }
+            }
+        }
+
+        function spawnBoss() {
+            isBossPhase = true;
+            hp = 60; 
+            bossSphere.setAttribute("visible", true);
+            hpText.setAttribute("value", "WARNING: BOSS APPEARED!\nBOSS HP: " + hp);
+            hpText.setAttribute("color", "#ff4757");
+        }
+
+      
+        function collectItem() {
+            playHitSound();
+            atk += 2;
+            itemBox.setAttribute("visible", false);
+            
+            if (!isBossPhase) {
+                hpText.setAttribute("value", "TARGET HP: " + hp + "\nATK: " + atk);
+            } else {
+                hpText.setAttribute("value", "BOSS HP: " + hp + "\nATK: " + atk);
+            }
+        }
+
+        box.addEventListener("click", damage);
+        itemBox.addEventListener("click", collectItem);
+        bossSphere.addEventListener("click", damage);
+    </script>
+</body>
+</html>
