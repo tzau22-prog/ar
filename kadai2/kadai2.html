@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AR Assignment 2</title>
+    <title>kadai2</title>
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/3.4.7/aframe/build/aframe-ar.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.5.4/dist/aframe-extras.min.js"></script>
@@ -50,10 +50,11 @@
 
 <body>
     <div id="hud">  
-        <!-- Change these option values and text to match your new model's animations -->
         <select id="animationSelect">
-            <option value="AnimationName1" selected>アニメーション1</option>
-            <option value="AnimationName2">アニメーション2</option>
+            <option value="jump_idle" selected>ジャンプ待機</option>
+            <option value="duck">しゃがみ </option>
+            <option value="hitreact">ヒット </option>
+            <option value="death">デス</option>
         </select>
         <button id="enlargeButton">拡大</button>
         <button id="shrinkButton">縮小</button>
@@ -65,13 +66,12 @@
 
         <a-marker preset="hiro" smooth="true">
             <a-entity id="model" position="0 0 0.5" scale="0.3 0.3 0.3">
-                <!-- Change "your-model.glb" to your actual downloaded CC0 model filename -->
                 <a-gltf-model 
-                    id="robot" 
-                    src="your-model.glb" 
+                    id="bunnyModel" 
+                    src="bunny(2).glb" 
                     position="0 0 0" 
                     rotation="-90 0 0"
-                    animation-mixer="clip: AnimationName1">
+                    animation-mixer="clip: jump_idle">
                 </a-gltf-model>
             </a-entity>
         </a-marker>
@@ -81,7 +81,7 @@
     </a-scene>
 
     <script>
-        const robot = document.getElementById("robot");
+        const bunnyModel = document.getElementById("bunnyModel");
         const animationSelect = document.getElementById("animationSelect");
         const enlargeButton = document.getElementById("enlargeButton");
         const shrinkButton = document.getElementById("shrinkButton");
@@ -120,7 +120,7 @@
         reverseRotateButton.addEventListener("click", reverseRotateModel);
 
         function changeAnimation() {
-            robot.setAttribute("animation-mixer", "clip: " + animationSelect.value);
+            bunnyModel.setAttribute("animation-mixer", "clip: " + animationSelect.value);
         }
         animationSelect.addEventListener("change", changeAnimation);
     </script>
