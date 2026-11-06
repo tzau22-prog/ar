@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/aframe@1.5.0/dist/aframe-master.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.6.0/dist/aframe-extras.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/projapayuri/aframe-gesture-hands@v0.9.2/aframe-gesture-hands.js"></script>
+</head>
+<body>
+    <a-scene hands id="scene">
+        <a-gltf-model
+            id="model"
+            src="c_cyan.glb"
+            animation-mixer="clip: MagicCircle_Loop"
+            position="0 0.4 -3"
+            rotation="-90 0 0"
+            scale="2 2 2">
+        </a-gltf-model>
+    
+        <a-plane
+            id="gold-panel"
+            color="gold"
+            opacity="0.8"
+            width="0.9"
+            height="0.35"
+            rotation="-10 0 0"
+            position="-0.5 -0.8 -2">
+        </a-plane>
+
+        <a-plane
+            id="violet-panel"
+            color="mediumpurple"
+            opacity="0.8"
+            width="0.9"
+            height="0.35"
+            rotation="-10 0 0"
+            position="0.5 -0.8 -2">
+        </a-plane>
+    </a-scene>
+    
+    <script>
+        const scene = document.getElementById("scene");
+        const model = document.getElementById("model");
+        const goldPanel = document.getElementById("gold-panel");
+        const violetPanel = document.getElementById("violet-panel");
+        
+        const circleSound = new Audio("circle.mp3");
+        
+        let wasGoldInside = false;
+        let wasVioletInside = false;
+
+        function checkTouch() {
+           
+            const goldInside = scene.components.hands.isPointOnEntity(8, goldPanel);
+            if (goldInside && !wasGoldInside) {
+                model.setAttribute("src", "c_gold.glb");
+                circleSound.currentTime = 0;
+                circleSound.play();
+            }
+            wasGoldInside = goldInside;
+
+           
+            const violetInside = scene.components.hands.isPointOnEntity(8, violetPanel);
+            if (violetInside && !wasVioletInside) {
+                model.setAttribute("src", "c_violet.glb");
+                circleSound.currentTime = 0;
+                circleSound.play();
+            }
+            wasVioletInside = violetInside;
+        }
+
+        scene.addEventListener("hand-result", checkTouch);
+    </script>
+</body>
+</html>
