@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AR Spider Battle Game</title>
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/aframe@1.5.0/dist/aframe-master.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.6.0/dist/aframe-extras.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/projapayuri/aframe-gesture-hands@v0.9.2/aframe-gesture-hands.js"></script>
+
+    <style>
+        #start-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            z-index: 9999; color: white; font-family: sans-serif;
+            text-align: center;
+        }
+        #start-btn {
+            padding: 15px 30px; font-size: 20px; font-weight: bold;
+            background: #ff4d4d; color: white; border: none;
+            border-radius: 10px; cursor: pointer; margin-top: 20px;
+        }
+        #hud {
+            position: fixed; top: 20px; left: 50%;
+            transform: translateX(-50%); z-index: 999;
+            font-size: 20px; font-weight: bold; color: white;
+            background: rgba(0, 0, 0, 0.85); padding: 14px 28px;
+            border-radius: 12px; display: none; text-align: center;
+            border: 2px solid #ff4d4d;
+        }
+    </style>
+</head>
+<body>
+
+    
+    <div id="start-screen">
+        <h1>🕷️ AR Spider Battle Game</h1>
+        <p>カメラのアクセスを許可してゲームを始めよう！</p>
+        <button id="start-btn" onclick="startGame()">▶ バトル開始 (Start Battle)</button>
+    </div>
+
+    
+    <div id="hud">🕷️ スパイダーのHP: 3 / 3</div>
+
+    
+    <a-scene hands id="scene">
+        <a-light type="ambient" color="#ffffff" intensity="1.5"></a-light>
+        <a-light type="directional" position="0 2 1" intensity="1"></a-light>
+
+        
+        <a-entity id="spider" gltf-model="spider.glb" position="0 0 -1.5" scale="0.8 0.8 0.8" rotation="0 180 0"></a-entity>
+    </a-scene>
+    
+    <script>
+        const scene = document.getElementById("scene");
+        const hud = document.getElementById("hud");
+        const startScreen = document.getElementById("start-screen");
+        const spider = document.getElementById("spider");
+
+        
+        const soundAttack = new Audio("enemy-attack.mp3");
+        const soundHit    = new Audio("hit.mp3");
+        const soundDeath  = new Audio("death.mp3");
+
+        let spiderHP = 3;
+        let isTouching = false;
+
+        function startGame() {
+            startScreen.style.display = "none";
+            hud.style.display = "block";
+            soundAttack.load();
+            soundHit.load();
+            soundDeath.load();
+            soundAttack.currentTime = 0;
+            soundAttack.play().catch(e => console.log("Audio waiting"));
+        }
+
+        function checkBattle() {
+            const hands = scene.components.hands;
+            if (!hands || spiderHP <= 0) return;
+
+            
+            const hitSpider = hands.isPointOnEntity(8, spider);
+
+            if (hitSpider && !isTouching) {
+                isTouching = true;
+                spiderHP--;
+
+                if (spiderHP > 0) {
+                    
+                    hud.innerText = `💥 命中！ スパイダーのHP: ${spiderHP} / 3`;
+                    soundHit.currentTime = 0;
+                    soundHit.play();
+
+                    
+                    spider.setAttribute("scale", "0.6 0.6 0.6");
+                    setTimeout(() => spider.setAttribute("scale", "0.8 0.8 0.8"), 200);
+                } else {
+                    
+                    hud.innerText = "🏆 勝利！ スパイダーを倒した！";
+                    soundDeath.currentTime = 0;
+                    soundDeath.play();
+                    spider.setAttribute("visible", "false"); 
+                }
+            } else if (!hitSpider) {
+                isTouching = false;
+            }
+        }
+
+        scene.addEventListener("hand-result", checkBattle);
+    </script>
+</body>
+</html>
