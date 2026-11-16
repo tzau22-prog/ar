@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/projapayuri/aframe-vr-kit@v0.2.0/vr-kit.js"></script>
+
+    <style>
+        #hud{
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 999;
+            padding: 12px;
+        }
+
+        select{
+            font-size: 18px;
+            padding: 4px 8px;
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div id="hud">
+        <select id="avatarChoice">
+            <option value="wolf.glb">狼</option>
+            <option value="robot.glb">ロボット</option>
+        </select>
+    </div>
+
+    <a-scene>
+        <a-sky color="lightblue"></a-sky>
+        <a-plane 
+            rotation="-90 0 0"
+            width="30"
+            height="30"
+            color="darkseagreen">
+        </a-plane>
+
+        <a-entity
+            id="avatar"
+            gltf-model="wolf.glb"
+            position="0 0 -3"
+            scale="0.5 0.5 0.5"
+            avatar-motion="
+                walk: Gallop;
+                idle: Idle;
+            ">
+        </a-entity>
+
+        <a-box color="gold" position="0 2 -5"></a-box>
+        <a-box color="green" position="0 3 -4"></a-box>
+        <a-box color="red" position="0 1 -8"></a-box>
+    </a-scene>
+    
+    <script>
+        const avatar = document.getElementById("avatar");
+        const avatarChoice = document.getElementById("avatarChoice");
+
+        function changeAvatar() {
+            if (avatarChoice.value === "wolf.glb") {
+                avatar.setAttribute("gltf-model", avatarChoice.value);
+                avatar.setAttribute("scale", "0.5 0.5 0.5");
+                avatar.setAttribute(
+                    "avatar-motion", {
+                        walk: "Gallop",
+                        idle: "Idle"
+                    }
+                );
+            }
+
+            if (avatarChoice.value === "robot.glb") {
+                avatar.setAttribute("gltf-model", avatarChoice.value);
+                avatar.setAttribute("scale", "0.3 0.3 0.3");
+                avatar.setAttribute(
+                    "avatar-motion", {
+                        walk: "Robot_Walking",
+                        idle: "Robot_Wave"
+                    }
+                );
+            }
+        }
+
+        avatarChoice.addEventListener("change", changeAvatar);
+    </script>
+</body>
+</html>
